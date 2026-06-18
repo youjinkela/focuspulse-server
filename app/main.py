@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.data import router as data_router
 from app.api.pairing import router as pairing_router
 from app.api.sync import router as sync_router
 from app.database import async_session_factory
@@ -28,6 +29,7 @@ app = FastAPI(
 
 app.include_router(pairing_router)
 app.include_router(sync_router)
+app.include_router(data_router)
 
 
 @app.get("/health")
