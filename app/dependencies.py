@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +16,7 @@ generate_api_key = generate_api_key
 
 async def verify_api_key(
     authorization: str = Header(..., description="Bearer <api_key>"),
-    session: AsyncSession = get_session,
+    session: AsyncSession = Depends(get_session),
 ) -> UUID:
     """FastAPI dependency. Extracts API Key, looks up device, returns device_id."""
     if not authorization.startswith("Bearer "):
