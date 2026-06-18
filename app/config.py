@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     device_code_length: int = 6
     daily_summary_hour: int = 2  # UTC hour to run daily aggregation
 
-    model_config = {"env_prefix": "", "case_sensitive": False}
+    model_config = {"env_prefix": "", "case_sensitive": False, "env_file": ".env"}
 
 
 settings = Settings()
