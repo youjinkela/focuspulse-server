@@ -5,13 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import hash_api_key
-from app.config import generate_api_key  # re-exported: app.dependencies.hash_api_key / generate_api_key
 from app.database import get_session
 from app.models.device import Device
-
-# Re-exported for convenience
-hash_api_key = hash_api_key
-generate_api_key = generate_api_key
 
 
 async def verify_api_key(

@@ -51,7 +51,6 @@ async def lifespan(_app: FastAPI):
         "cron",
         hour=settings.daily_summary_hour,
         minute=0,
-        args=[date.today()],
     )
     scheduler.add_job(
         _run_cleanup,

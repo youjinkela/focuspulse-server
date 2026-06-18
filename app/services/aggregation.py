@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
+from logging import getLogger
 
-from sqlalchemy import select, func
+from sqlalchemy import Integer, cast, select, func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +11,8 @@ from app.models.session import DesktopSession
 from app.models.pomodoro import PomodoroSessionCloud
 from app.models.android_usage import AndroidAppUsage
 from app.models.daily_summary import DailySummary
+
+logger = getLogger(__name__)
 
 
 async def compute_daily_summary(
@@ -97,27 +100,27 @@ async def compute_daily_summary(
     cat_result = await session.execute(
         select(
             func.sum(
-                func.cast(
+                cast(
                     func.jsonb_extract_path_text(
                         DesktopSession.category_scores, "high"
                     ),
-                    func.Integer,
+                    Integer,
                 )
             ),
             func.sum(
-                func.cast(
+                cast(
                     func.jsonb_extract_path_text(
                         DesktopSession.category_scores, "medium"
                     ),
-                    func.Integer,
+                    Integer,
                 )
             ),
             func.sum(
-                func.cast(
+                cast(
                     func.jsonb_extract_path_text(
                         DesktopSession.category_scores, "low"
                     ),
-                    func.Integer,
+                    Integer,
                 )
             ),
         ).where(
@@ -184,7 +187,7 @@ async def compute_all_active_codes(session: AsyncSession, target_date: date | No
         try:
             await compute_daily_summary(session, code, target_date)
             computed.append(code)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Daily aggregation failed for device_code {code}: {e}")
 
     return computed
