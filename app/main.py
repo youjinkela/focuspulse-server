@@ -28,6 +28,16 @@ async def _run_daily_aggregation(target_date: date | None = None):
         logger.info(f"Daily aggregation complete for {target_date}: {len(codes)} codes")
 
 
+async def _run_cleanup():
+    """Purge window_events and android_app_usage older than 30 days."""
+    from app.database import async_session_factory
+    from app.services.cleanup import purge_old_events
+
+    async with async_session_factory() as session:
+        result = await purge_old_events(session)
+        logger.info(f"Data cleanup: {result}")
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # Startup: verify DB connection, start scheduler
@@ -41,6 +51,12 @@ async def lifespan(_app: FastAPI):
         hour=settings.daily_summary_hour,
         minute=0,
         args=[date.today()],
+    )
+    scheduler.add_job(
+        _run_cleanup,
+        "cron",
+        hour=3,
+        minute=0,  # 3:00 UTC daily
     )
     scheduler.start()
     logger.info(f"Daily aggregation scheduled for hour {settings.daily_summary_hour}:00 UTC")
