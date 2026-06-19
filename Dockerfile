@@ -16,5 +16,5 @@ RUN pip install --no-cache-dir .
 # Expose port
 EXPOSE 8000
 
-# Run with entrypoint (migrations then server)
-CMD ["./docker-entrypoint.sh"]
+# Run migrations then start server
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"
