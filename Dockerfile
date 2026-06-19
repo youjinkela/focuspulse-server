@@ -7,21 +7,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
-COPY pyproject.toml .
-RUN pip install --no-cache-dir .
+# Copy everything (dockerignore excludes .venv/ __pycache__/ .git/ tests/ etc.)
+COPY . .
 
-# Copy app
-COPY alembic.ini .
-COPY alembic/ ./alembic/
-COPY app/ ./app/
+# Install Python deps AND the app package
+RUN pip install --no-cache-dir .
 
 # Expose port
 EXPOSE 8000
-
-# Copy entrypoint
-COPY docker-entrypoint.sh .
-RUN chmod +x docker-entrypoint.sh
 
 # Run with entrypoint (migrations then server)
 CMD ["./docker-entrypoint.sh"]
