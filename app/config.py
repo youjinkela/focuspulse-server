@@ -2,6 +2,7 @@ import hashlib
 import secrets
 import string
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -12,6 +13,13 @@ class Settings(BaseSettings):
     daily_summary_hour: int = 2  # UTC hour to run daily aggregation
 
     model_config = {"env_prefix": "", "case_sensitive": False, "env_file": ".env"}
+
+    @model_validator(mode="after")
+    def _ensure_asyncpg_driver(self):
+        """Zeabur injects DATABASE_URL as 'postgresql://...' but we need 'postgresql+asyncpg://'."""
+        if self.database_url and "+asyncpg" not in self.database_url:
+            self.database_url = self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return self
 
 
 settings = Settings()
