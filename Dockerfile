@@ -19,5 +19,9 @@ COPY app/ ./app/
 # Expose port
 EXPOSE 8000
 
-# Run with uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy entrypoint
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+
+# Run with entrypoint (migrations then server)
+CMD ["./docker-entrypoint.sh"]
